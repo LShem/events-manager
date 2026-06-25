@@ -47,19 +47,21 @@ Pour l'activer dans un prompt : ajoute `use context7` ou demande explicitement l
 ```
 /
   CLAUDE.md
+  global.json         # pin du SDK .NET 10
+  events-manager.sln  # solution à la racine
   .claude/
-    commands/       # /verify, /slice, ...
-    agents/         # reviewer, test-writer, ...
-  src/
+    commands/         # /verify, /slice, ...
+    agents/           # reviewer, test-writer, ...
+  src/                # projets .NET uniquement
     Api/
     Application/
     Domain/
     Infrastructure/
-    web/            # app Angular (avec son propre CLAUDE.md)
+  web/                # app Angular (semaine 8), avec son propre CLAUDE.md
   tests/
     UnitTests/
     IntegrationTests/
-    e2e/
+    e2e/              # Playwright (semaine 12)
 ```
 
 ## Style de réponse attendu
