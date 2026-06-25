@@ -29,6 +29,14 @@ d'apprentissage de l'agentic coding : maîtriser l'agentic est le but, l'appli e
 - DDD tactique léger : `Money`, `EmailAddress`, IDs typés (`EventId`, `OrderId`) ; agrégats `Event` et `Order` avec invariants garantis dans la racine d'agrégat. Pas de DDD stratégique, pas de bus de domain events.
 - Tests : **pyramide**. Gros volume en unitaire (domaine) + intégration (handlers + EF). E2E fin (3-5 parcours critiques max).
 
+## Documentation à jour (MCP Context7)
+
+Context7 est configuré dans `.claude/settings.json`. Avant de générer du code sur une librairie tierce, utilise-le pour récupérer la documentation versionnée à jour.
+
+Librairies concernées : .NET 10, ASP.NET Core, EF Core 10, FluentValidation, xUnit, Testcontainers, Angular 22, Angular Material, Style Dictionary.
+
+Pour l'activer dans un prompt : ajoute `use context7` ou demande explicitement la doc de la librairie visée.
+
 ## Workflow de vérification
 
 - Après toute modification de code : lancer `/verify` et corriger jusqu'au vert **avant de s'arrêter**.
