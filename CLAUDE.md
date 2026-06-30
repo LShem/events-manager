@@ -28,6 +28,9 @@ d'apprentissage de l'agentic coding : maîtriser l'agentic est le but, l'appli e
 - Mappers = méthodes d'extension (`ToDto()`, `ToEntity()`), **aucune logique métier dedans**, testés.
 - DDD tactique léger : `Money`, `EmailAddress`, IDs typés (`EventId`, `OrderId`) ; agrégats `Event` et `Order` avec invariants garantis dans la racine d'agrégat. Pas de DDD stratégique, pas de bus de domain events.
 - Tests : **pyramide**. Gros volume en unitaire (domaine) + intégration (handlers + EF). E2E fin (3-5 parcours critiques max).
+- **Global usings** : toujours dans un fichier `GlobalUsings.cs` dédié à la racine du projet. Jamais via `<Using Include="...">` dans les csproj.
+- **InternalsVisibleTo** : toujours dans un fichier `InternalsVisible.cs` dédié à la racine du projet concerné, sous forme d'attribut d'assembly : `[assembly: InternalsVisibleTo("EventsManager.UnitTests")]`. Jamais via `<InternalsVisibleTo Include="...">` dans les csproj.
+- **Méthodes** : toujours en bloc `{ ... }`, jamais en expression body (`=>`), même pour les implémentations d'une ligne.
 
 ## Documentation à jour (MCP Context7)
 

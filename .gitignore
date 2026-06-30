@@ -1,2 +1,60 @@
 # Surcharges perso Claude Code (non versionnées)
 .claude/settings.local.json
+
+## Build
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+
+## JetBrains Rider
+.idea/
+*.sln.iml
+
+## Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+## Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+TestResults/
+
+## Coverage
+*.coverage
+*.coveragexml
+coverage*/
+lcov.info
+
+## Publish
+**/[Pp]ublish/
+PublishProfiles/
+
+## ASP.NET
+wwwroot/dist/
+bundleconfig.json
+
+## Secrets / config locaux
+appsettings.*.local.json
+secrets.json
