@@ -2,6 +2,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <!-- Force la résolution transitive vers une version non vulnérable (NU1903 / GHSA-v5pm-xwqc-g5wc,
+         corrigé en 2.7.5+). Microsoft.AspNetCore.OpenApi 10.0.9 tire sinon Microsoft.OpenApi 2.0.0. -->
+    <PackageReference Include="Microsoft.OpenApi" />
   </ItemGroup>
 
   <ItemGroup>

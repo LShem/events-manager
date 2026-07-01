@@ -14,9 +14,6 @@ public class ArchitectureTests
     private static readonly Assembly Infrastructure =
         typeof(EventsManager.Infrastructure.AssemblyMarker).Assembly;
 
-    private static readonly Assembly Api =
-        typeof(EventsManager.Api.AssemblyMarker).Assembly;
-
     [Fact]
     public void Domain_MustNot_DependOn_Application()
     {
@@ -57,12 +54,11 @@ public class ArchitectureTests
     {
         var result = Types.InAssembly(assembly)
                           .ShouldNot()
-                          .HaveDependencyOn(forbiddenNamespace)
+                          .HaveDependencyOnAny(forbiddenNamespace)
                           .GetResult();
 
-        Assert.True(
-            result.IsSuccessful,
+        result.IsSuccessful.Should().BeTrue(
             $"{assembly.GetName().Name} ne doit pas dépendre de {forbiddenNamespace}. " +
-            $"Types en faute : {string.Join(", ", result.FailingTypeNames ?? [])}");
+            $"Types en faute : {string.Join(", ", result.FailingTypes?.Select(t => t.FullName) ?? [])}");
     }
 }

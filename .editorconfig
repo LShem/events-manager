@@ -71,3 +71,26 @@ dotnet_diagnostic.CS8825.severity = warning # Return value must be non-null beca
 # Switch expression non-exhaustif sur null
 dotnet_diagnostic.CS8655.severity = warning # Switch expression does not handle some null inputs
 dotnet_diagnostic.CS8847.severity = warning # Switch expression does not handle some null inputs (when clause)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Corps de méthode/constructeur toujours en bloc { }, jamais en expression body =>.
+# Combiné avec EnforceCodeStyleInBuild dans Directory.Build.props,
+# toute violation échoue le build (les autres membres — propriétés, opérateurs,
+# lambdas, etc. — ne sont pas encore couverts, à évaluer plus tard).
+# Référence : https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0022
+# ──────────────────────────────────────────────────────────────────────────────
+
+csharp_style_expression_bodied_methods = false
+dotnet_diagnostic.IDE0022.severity = error # Use expression body for methods
+
+csharp_style_expression_bodied_constructors = false
+dotnet_diagnostic.IDE0021.severity = error # Use expression body for constructors
+
+# ──────────────────────────────────────────────────────────────────────────────
+# AssemblyMarker : classe volontairement vide (utilisée uniquement pour
+# typeof(AssemblyMarker).Assembly dans les tests d'architecture), pas un defect.
+# Suppression ciblée pour ne pas désactiver S2094 ailleurs dans le code.
+# ──────────────────────────────────────────────────────────────────────────────
+
+[**/AssemblyMarker.cs]
+dotnet_diagnostic.S2094.severity = none # Remove this empty class, write its code or make it an "interface"
