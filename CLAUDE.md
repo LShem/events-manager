@@ -42,7 +42,7 @@ Pour l'activer dans un prompt : ajoute `use context7` ou demande explicitement l
 
 ## Workflow de vérification
 
-- Après toute modification de code : lancer `/verify` et corriger jusqu'au vert **avant de s'arrêter**.
+- Après toute modification de code : lancer `/check` et corriger jusqu'au vert **avant de s'arrêter**. **3 passes maximum**, jamais plus : la boucle exacte, les interdits anti-triche et le critère d'arrêt sont définis dans `.claude/commands/check.md`, s'y référer.
 - Pour toute tâche non triviale : proposer un **plan d'abord**, attendre validation, puis exécuter.
 
 ## Structure du repo
@@ -51,9 +51,9 @@ Pour l'activer dans un prompt : ajoute `use context7` ou demande explicitement l
 /
   CLAUDE.md
   global.json         # pin du SDK .NET 10
-  events-manager.sln  # solution à la racine
+  events-manager.slnx # solution à la racine
   .claude/
-    commands/         # /verify, /slice, ...
+    commands/         # /check, /slice, ...
     agents/           # reviewer, test-writer, ...
   src/                # projets .NET uniquement
     Api/
