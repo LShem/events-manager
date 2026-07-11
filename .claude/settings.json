@@ -1,8 +1,22 @@
 {
-  "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"]
-    }
-  }
+  "attribution": {
+    "commit": "🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(dotnet *)",
+      "Bash(git add *)",
+      "Bash(git restore --staged *)",
+      "Edit(/src/**)",
+      "Edit(/tests/**)",
+      "mcp__context7",
+      "PowerShell(dotnet *)",
+      "PowerShell(git add *)",
+      "PowerShell(git restore --staged *)",
+      "Skill(check)",
+      "Skill(check:*)",
+      "WebSearch"
+    ]
+  },
+  "enabledMcpjsonServers": ["context7"]
 }
