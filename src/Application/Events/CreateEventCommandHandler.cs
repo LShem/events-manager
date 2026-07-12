@@ -15,7 +15,7 @@ public sealed class CreateEventCommandHandler(
     private readonly IValidator<CreateEventCommand> _validator = validator;
     private readonly TimeProvider _timeProvider = timeProvider;
 
-    public async Task<EventId> HandleAsync(CreateEventCommand command, CancellationToken cancellationToken)
+    public async Task<Guid> HandleAsync(CreateEventCommand command, CancellationToken cancellationToken)
     {
         await _validator.ValidateAndThrowAsync(command, cancellationToken);
 
@@ -23,6 +23,6 @@ public sealed class CreateEventCommandHandler(
         var @event = Event.Create(command.Name, command.Date, today);
         await _eventRepository.AddAsync(@event, cancellationToken);
 
-        return @event.Id;
+        return @event.Id.Value;
     }
 }

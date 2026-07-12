@@ -22,7 +22,7 @@ public class GetEventQueryHandlerTests
         var @event = Event.Create("Fête nationale", ValidDate, Today);
         _repository.Events.Add(@event);
 
-        var dto = await _handler.HandleAsync(new GetEventQuery(@event.Id), TestContext.Current.CancellationToken);
+        var dto = await _handler.HandleAsync(new GetEventQuery(@event.Id.Value), TestContext.Current.CancellationToken);
 
         dto.Should().Be(new EventDto(@event.Id.Value, "Fête nationale", ValidDate));
     }
@@ -32,8 +32,16 @@ public class GetEventQueryHandlerTests
     {
         _repository.Events.Add(Event.Create("Fête nationale", ValidDate, Today));
 
-        var dto = await _handler.HandleAsync(new GetEventQuery(EventId.New()), TestContext.Current.CancellationToken);
+        var dto = await _handler.HandleAsync(new GetEventQuery(Guid.CreateVersion7()), TestContext.Current.CancellationToken);
 
         dto.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithEmptyId_ThrowsArgumentException()
+    {
+        Func<Task> act = () => _handler.HandleAsync(new GetEventQuery(Guid.Empty), TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<ArgumentException>();
     }
 }

@@ -8,10 +8,11 @@ namespace EventsManager.UnitTests.Architecture;
 /// de types au niveau IL.
 ///
 /// Utilité propre : interdire une référence de projet *directe* qui ne devrait pas exister,
-/// même quand l'usage transitif des types est légitime. Exemple : Api utilise des types du
-/// Domain à travers Application (donc NetArchTest ne peut pas interdire la dépendance de type
-/// Api → Domain), mais une référence de projet *directe* Api → Domain est un saut de couche
-/// interdit — c'est exactement ce que ce test attrape.
+/// même quand l'usage transitif des types est légitime. Exemple : Infrastructure utilise des
+/// types du Domain à travers Application (EF Core mappe l'agrégat Event, donc NetArchTest ne
+/// peut pas interdire la dépendance de type Infrastructure → Domain), mais une référence de
+/// projet *directe* Infrastructure → Domain est un saut de couche interdit — c'est exactement
+/// ce que ce test attrape.
 /// </summary>
 public class ProjectReferenceTests
 {

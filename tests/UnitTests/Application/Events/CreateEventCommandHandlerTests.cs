@@ -28,7 +28,7 @@ public class CreateEventCommandHandlerTests
         var id = await _handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         var @event = _repository.Events.Should().ContainSingle().Subject;
-        @event.Id.Should().Be(id);
+        @event.Id.Value.Should().Be(id);
         @event.Name.Should().Be("Fête nationale");
         @event.Date.Should().Be(ValidDate);
     }
