@@ -47,6 +47,19 @@ Pour l'activer dans un prompt : ajoute `use context7` ou demande explicitement l
 - Après toute modification de code : lancer `/check` et corriger jusqu'au vert **avant de s'arrêter**. **3 passes maximum**, jamais plus : la boucle exacte, les interdits anti-triche et le critère d'arrêt sont définis dans `.claude/commands/check.md`, s'y référer.
 - Pour toute tâche non triviale : proposer un **plan d'abord**, attendre validation, puis exécuter.
 
+## Commits (Conventional Commits 1.0.0)
+
+Tout message de commit suit la spec <https://www.conventionalcommits.org/en/v1.0.0/#specification> :
+
+- **Structure** : `<type>[(scope)][!]: <description>`, puis corps optionnel et footers optionnels, chaque bloc séparé du précédent par une ligne vide.
+- **Types** : `feat` (nouvelle fonctionnalité → SemVer MINOR), `fix` (correction de bug → PATCH). Autres types admis : `build`, `chore`, `ci`, `docs`, `style`, `refactor`, `perf`, `test`.
+- **Scope** : optionnel, un nom entre parenthèses désignant la zone touchée, ex. `feat(domain):`, `fix(api):`.
+- **Description** : obligatoire, immédiatement après `: `. Usage du repo : description et corps en français, concis, sans point final dans la description (types et scopes restent en anglais).
+- **Breaking change** : `!` juste avant le `:` (`feat(api)!: ...`) et/ou footer `BREAKING CHANGE: <description>` (→ MAJOR). `BREAKING CHANGE` obligatoirement en majuscules ; `BREAKING-CHANGE` accepté comme équivalent en footer uniquement.
+- **Corps** : libre, une ligne vide après la description ; y expliquer le *pourquoi* et les décisions non évidentes (cf. historique du repo).
+- **Footers** : format git trailer `Token: valeur`, token multi-mots avec `-` (ex. `Reviewed-by:`), seule exception `BREAKING CHANGE`.
+- Un commit = un seul type de changement : si plusieurs types s'appliquent, découper en plusieurs commits.
+
 ## Structure du repo
 
 ```
