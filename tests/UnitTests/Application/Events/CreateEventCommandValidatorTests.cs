@@ -1,0 +1,69 @@
+using EventsManager.Application.Events;
+using FluentValidation.TestHelper;
+
+namespace EventsManager.UnitTests.Application.Events;
+
+public class CreateEventCommandValidatorTests
+{
+    private static readonly DateOnly Today = new(2026, 7, 13);
+    private static readonly DateOnly ValidDate = new(2026, 7, 14);
+
+    private readonly CreateEventCommandValidator _validator = new(
+        new FixedTimeProvider(new DateTimeOffset(2026, 7, 13, 12, 0, 0, TimeSpan.Zero)));
+
+    [Fact]
+    public void Validate_WithValidCommand_Passes()
+    {
+        var command = new CreateEventCommand("Fête nationale", ValidDate);
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Validate_WithInvalidName_Fails(string? name)
+    {
+        var command = new CreateEventCommand(name!, ValidDate);
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldHaveValidationErrorFor(c => c.Name);
+    }
+
+    [Fact]
+    public void Validate_WithDefaultDate_FailsWithEmptyDateMessage()
+    {
+        var command = new CreateEventCommand("Fête nationale", default);
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldHaveValidationErrorFor(c => c.Date)
+              .WithErrorMessage("La date de l'évènement ne peut pas être vide.");
+    }
+
+    [Fact]
+    public void Validate_WithTodayDate_FailsWithMinimumDateMessage()
+    {
+        var command = new CreateEventCommand("Fête nationale", Today);
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldHaveValidationErrorFor(c => c.Date)
+              .WithErrorMessage("La date de l'évènement doit être au moins à J+1.");
+    }
+
+    [Fact]
+    public void Validate_WithPastDate_FailsWithMinimumDateMessage()
+    {
+        var command = new CreateEventCommand("Fête nationale", Today.AddDays(-1));
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldHaveValidationErrorFor(c => c.Date)
+              .WithErrorMessage("La date de l'évènement doit être au moins à J+1.");
+    }
+}
