@@ -72,6 +72,10 @@ dotnet_diagnostic.CS8825.severity = warning # Return value must be non-null beca
 dotnet_diagnostic.CS8655.severity = warning # Switch expression does not handle some null inputs
 dotnet_diagnostic.CS8847.severity = warning # Switch expression does not handle some null inputs (when clause)
 
+# IDE warnings
+dotnet_diagnostic.IDE0290.severity = warning # Use primary constructor
+dotnet_diagnostic.IDE0305.severity = warning # Simplify collection initialization
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Corps de méthode/constructeur toujours en bloc { }, jamais en expression body =>.
 # Combiné avec EnforceCodeStyleInBuild dans Directory.Build.props,
@@ -91,6 +95,9 @@ dotnet_diagnostic.IDE0021.severity = error # Use expression body for constructor
 # typeof(AssemblyMarker).Assembly dans les tests d'architecture), pas un defect.
 # Suppression ciblée pour ne pas désactiver S2094 ailleurs dans le code.
 # ──────────────────────────────────────────────────────────────────────────────
+
+
+
 
 [**/AssemblyMarker.cs]
 dotnet_diagnostic.S2094.severity = none # Remove this empty class, write its code or make it an "interface"

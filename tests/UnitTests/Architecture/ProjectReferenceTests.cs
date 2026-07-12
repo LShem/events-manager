@@ -47,10 +47,9 @@ public class ProjectReferenceTests
         var csproj = Path.Combine(SolutionRoot(), "src", folder, $"{project}.csproj");
         var document = XDocument.Load(csproj);
 
-        return document.Descendants("ProjectReference")
+        return [.. document.Descendants("ProjectReference")
                        .Select(element => element.Attribute("Include")!.Value)
-                       .Select(path => Path.GetFileNameWithoutExtension(path))
-                       .ToArray();
+                       .Select(path => Path.GetFileNameWithoutExtension(path))];
     }
 
     private static string SolutionRoot()
