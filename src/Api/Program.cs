@@ -1,4 +1,5 @@
 using EventsManager.Application.Events;
+using EventsManager.Infrastructure;
 using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,9 +12,11 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddSingleton(TimeProvider.System);
 
+var connectionString = builder.Configuration.GetConnectionString("EventsManager")
+    ?? throw new InvalidOperationException("Chaîne de connexion « EventsManager » absente de la configuration.");
+builder.Services.AddInfrastructure(connectionString);
+
 // CQRS light : handlers résolus par injection DI directe dans les futurs endpoints (pas de bus).
-// IEventRepository n'a pas encore d'implémentation (couche Infrastructure à venir) :
-// résoudre les handlers échouera tant qu'elle n'est pas enregistrée.
 builder.Services.AddSingleton<IValidator<CreateEventCommand>, CreateEventCommandValidator>();
 builder.Services.AddScoped<CreateEventCommandHandler>();
 builder.Services.AddScoped<GetEventQueryHandler>();
