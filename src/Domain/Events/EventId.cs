@@ -6,7 +6,8 @@ namespace EventsManager.Domain.Events;
 /// triable chronologiquement côté .NET (à la milliseconde près — pas d'ordre
 /// garanti entre deux IDs créés dans la même milliseconde).
 /// SQL Server trie uniqueidentifier par les 6 derniers octets : le tri
-/// chronologique côté SQL sera porté par une colonne CreatedAt, pas par cet ID.
+/// chronologique côté SQL est porté par une colonne dédiée (Date pour Event),
+/// jamais par cet ID.
 /// </summary>
 public readonly record struct EventId
 {

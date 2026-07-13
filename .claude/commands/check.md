@@ -21,7 +21,7 @@ Quand je lance `/check`, exécute jusqu'à 3 passes de la séquence build → te
    Si l'échec n'est pas une erreur de compilation/style/Sonar mais un problème d'environnement (SDK introuvable, résolution de packages, etc.), ne tente pas 3 passes de correction de code : documente-le immédiatement via le critère d'arrêt, une seule tentative de diagnostic suffit.
 
 2. **Tests** : `dotnet test --solution events-manager.slnx`
-   Le runner MTP (contrairement à `dotnet build`/`dotnet format`) n'accepte pas de chemin positionnel : `--solution` est obligatoire. Runner Microsoft Testing Platform (xUnit v3), configuré via `global.json` (`test.runner`). Projet `tests/UnitTests/EventsManager.UnitTests.csproj`. Si un test échoue, corrige la cause réelle : dans l'immense majorité des cas c'est un bug dans le code de production, pas dans le test.
+   Le runner MTP (contrairement à `dotnet build`/`dotnet format`) n'accepte pas de chemin positionnel : `--solution` est obligatoire. Runner Microsoft Testing Platform (xUnit v3), configuré via `global.json` (`test.runner`). Projets `tests/UnitTests/EventsManager.UnitTests.csproj` et `tests/IntegrationTests/EventsManager.IntegrationTests.csproj` — ce dernier utilise Testcontainers : **Docker doit être actif**, sinon c'est un problème d'environnement (critère d'arrêt immédiat, pas 3 passes). Si un test échoue, corrige la cause réelle : dans l'immense majorité des cas c'est un bug dans le code de production, pas dans le test.
 
 3. **Format** : `dotnet format events-manager.slnx --verify-no-changes`
    Si des changements sont signalés, applique `dotnet format events-manager.slnx` puis relis le diff. À ce stade le build est déjà vert, donc `EnforceCodeStyleInBuild` a déjà éliminé l'essentiel des soucis de style : ce qui reste ici est en principe de la pure mise en forme (indentation, espaces, retours à la ligne). Si le diff touche autre chose qu'un layout (réordonnancement de `using`, changement d'expression), vérifie que le comportement est inchangé avant de continuer.
@@ -91,6 +91,6 @@ Reste factuel et court. Pas de "tout est parfait !".
 
 ## Notes
 
-- Solution : `events-manager.slnx` à la racine du repo. Projet de tests : `tests/UnitTests/EventsManager.UnitTests.csproj`.
+- Solution : `events-manager.slnx` à la racine du repo. Projets de tests : `tests/UnitTests/EventsManager.UnitTests.csproj` (unitaires) et `tests/IntegrationTests/EventsManager.IntegrationTests.csproj` (intégration, Testcontainers SQL Server → Docker actif requis).
 - Pas de commit à la fin de `/check`. C'est une boucle de vérification locale, pas un workflow de publication.
 - `/check` part du principe que le seul but légitime est de faire dire la vérité au code, jamais de faire taire les outils qui la disent.
