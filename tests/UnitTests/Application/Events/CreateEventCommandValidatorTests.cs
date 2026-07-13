@@ -1,4 +1,5 @@
 using EventsManager.Application.Events;
+using EventsManager.Domain.Events;
 using FluentValidation.TestHelper;
 
 namespace EventsManager.UnitTests.Application.Events;
@@ -32,6 +33,27 @@ public class CreateEventCommandValidatorTests
         var result = _validator.TestValidate(command);
 
         result.ShouldHaveValidationErrorFor(c => c.Name);
+    }
+
+    [Fact]
+    public void Validate_WithNameOfMaxLength_Passes()
+    {
+        var command = new CreateEventCommand(new string('a', Event.NameMaxLength), ValidDate);
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void Validate_WithNameLongerThanMaxLength_FailsWithMaxLengthMessage()
+    {
+        var command = new CreateEventCommand(new string('a', Event.NameMaxLength + 1), ValidDate);
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldHaveValidationErrorFor(c => c.Name)
+              .WithErrorMessage("Le nom de l'évènement ne peut pas dépasser 100 caractères.");
     }
 
     [Fact]

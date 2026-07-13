@@ -37,6 +37,36 @@ public class EventTests
     }
 
     [Fact]
+    public void Create_WithNameOfMaxLength_Succeeds()
+    {
+        var name = new string('a', Event.NameMaxLength);
+
+        var @event = Event.Create(name, ValidDate, Today);
+
+        @event.Name.Should().Be(name);
+    }
+
+    [Fact]
+    public void Create_WithNameTrimmedToMaxLength_Succeeds()
+    {
+        var name = $"  {new string('a', Event.NameMaxLength)}  ";
+
+        var @event = Event.Create(name, ValidDate, Today);
+
+        @event.Name.Should().Be(name.Trim());
+    }
+
+    [Fact]
+    public void Create_WithNameLongerThanMaxLength_Throws()
+    {
+        var name = new string('a', Event.NameMaxLength + 1);
+
+        Action act = () => Event.Create(name, ValidDate, Today);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void Create_WithTomorrow_Succeeds()
     {
         var @event = Event.Create("Fête nationale", Today.AddDays(1), Today);
