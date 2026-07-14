@@ -4,6 +4,7 @@ using EventsManager.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventsManager.Infrastructure.Migrations
 {
     [DbContext(typeof(EventsManagerDbContext))]
-    partial class EventsManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260713193511_RemoveEventsRowVersion")]
+    partial class RemoveEventsRowVersion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,16 +39,11 @@ namespace EventsManager.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Year")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("int")
-                        .HasComputedColumnSql("YEAR([Date])", true);
-
                     b.HasKey("Id");
 
                     b.HasIndex("Date");
 
-                    b.HasIndex("Name", "Year")
+                    b.HasIndex("Name")
                         .IsUnique();
 
                     b.ToTable("Events", "app", t =>

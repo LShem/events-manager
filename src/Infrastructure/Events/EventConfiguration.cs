@@ -16,9 +16,9 @@ internal sealed class EventConfiguration : IEntityTypeConfiguration<Event>
 {
     public void Configure(EntityTypeBuilder<Event> builder)
     {
-        // HasTrigger obligatoire : depuis EF Core 7, SaveChanges relit les valeurs générées
-        // (ici le rowversion) via une clause OUTPUT sans INTO, que SQL Server refuse sur une
-        // table portant un trigger. Déclarer le trigger fait basculer EF sur la stratégie compatible.
+        // HasTrigger obligatoire : depuis EF Core 7, SaveChanges utilise une clause OUTPUT
+        // sans INTO, que SQL Server refuse sur une table portant un trigger. Déclarer le
+        // trigger fait basculer EF sur la stratégie compatible.
         builder.ToTable("Events", table => table.HasTrigger("TR_Events_Update_Audit"));
 
         builder.HasKey(e => e.Id);
@@ -31,10 +31,12 @@ internal sealed class EventConfiguration : IEntityTypeConfiguration<Event>
                .HasMaxLength(Event.NameMaxLength); // nvarchar(100) ; NOT NULL par convention NRT
 
         // Date : DateOnly → date, mapping natif SQL Server.
-        builder.HasIndex(e => e.Name).IsUnique();
-        builder.HasIndex(e => e.Date); // le tri chronologique métier est porté par Date
+        // Unicité métier : un évènement (par nom) n'a lieu qu'une fois par année civile.
+        // Year est calculée par SQL Server (persistée), en shadow : dérivée de Date,
+        // jamais écrite par le code.
+        builder.Property<int>("Year").HasComputedColumnSql("YEAR([Date])", stored: true);
+        builder.HasIndex("Name", "Year").IsUnique();
 
-        // Jeton de concurrence optimiste en shadow property : le Domain reste sans plomberie.
-        builder.Property<byte[]>("RowVersion").IsRowVersion();
+        builder.HasIndex(e => e.Date); // le tri chronologique métier est porté par Date
     }
 }

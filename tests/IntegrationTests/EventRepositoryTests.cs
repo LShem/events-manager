@@ -6,7 +6,8 @@ namespace EventsManager.IntegrationTests;
 
 /// <summary>
 /// Aller-retours réels du repository contre SQL Server : mapping fluent
-/// (conversion EventId, nvarchar(100), DateOnly → date) et index unique sur Name.
+/// (conversion EventId, nvarchar(100), DateOnly → date) et index unique (Name, Year) —
+/// un évènement n'a lieu qu'une fois par année civile.
 /// Chaque test écrit puis relit via des DbContext distincts (pas d'illusion de cache),
 /// et crée ses propres données avec un nom unique (l'index unique l'exige).
 /// </summary>
@@ -45,15 +46,34 @@ public class EventRepositoryTests(SqlServerContainerFixture fixture)
     }
 
     [Fact]
-    public async Task AddAsync_WithDuplicateName_ThrowsDbUpdateException()
+    public async Task AddAsync_WithDuplicateNameAndYear_ThrowsDbUpdateException()
     {
         var name = UniqueName("Marché de Noël");
         await AddAsync(Event.Create(name, ValidDate, Today));
 
-        var duplicate = Event.Create(name, ValidDate.AddDays(1), Today);
+        // Même nom et même année civile (2026), mais autre date : l'index unique (Name, Year) refuse.
+        var duplicate = Event.Create(name, new DateOnly(2026, 8, 15), Today);
         Func<Task> act = async () => await AddAsync(duplicate);
 
         await act.Should().ThrowAsync<DbUpdateException>();
+    }
+
+    [Fact]
+    public async Task AddAsync_WithSameNameInDifferentYear_Succeeds()
+    {
+        // Le cas métier visé : l'édition annuelle (Saint-Nicolas 2026 puis 2027) garde le même nom.
+        var name = UniqueName("Saint-Nicolas");
+        await AddAsync(Event.Create(name, ValidDate, Today));
+
+        var nextYearEdition = Event.Create(name, new DateOnly(2027, 12, 6), Today);
+        await AddAsync(nextYearEdition);
+
+        await using var context = _fixture.CreateContext();
+        var repository = new EventRepository(context);
+        var reloaded = await repository.GetByIdAsync(nextYearEdition.Id, TestContext.Current.CancellationToken);
+
+        reloaded.Should().NotBeNull();
+        reloaded!.Name.Should().Be(name);
     }
 
     [Fact]
