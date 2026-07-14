@@ -30,11 +30,11 @@ d'apprentissage de l'agentic coding : maîtriser l'agentic est le but, l'appli e
 - **IDs typés** : `readonly record struct` calqué sur `EventId` (`src/Domain/Events/EventId.cs`) — ctor privé, `New()` → `Guid.CreateVersion7()` (UUIDv7), `From(Guid)` qui rejette `Guid.Empty`. Pas d'UUIDv8/UUIDNext, pas de génération côté DB. Le tri chronologique côté SQL Server est porté par une colonne dédiée (ex. `Date` pour `Event`), jamais par l'ID (`uniqueidentifier` trie par les 6 derniers octets → un UUIDv7 n'y est pas trié).
 - **Colonnes d'audit DB-only** : chaque table porte `AddedBy`, `AddedDate`, `UpdatedBy`, `UpdatedDate` (UTC), invisibles du code — ni Domain, ni modèle EF, pas même en shadow property. `Added*` = contraintes DEFAULT (`SUSER_SNAME()`, `SYSUTCDATETIME()`) ; `Updated*` = trigger `AFTER UPDATE`. Pour chaque nouvelle table : compléter la migration à la main (colonnes + trigger, réf. migration `EventsAudit`) et déclarer le trigger via `HasTrigger` dans la config fluent — sans quoi `SaveChanges` échoue (OUTPUT sans INTO interdit sur une table à trigger).
 - **Frontière Api ↔ Domain** : l'Api ne référence jamais un type Domain (verrouillé par test d'architecture NetArchTest). Corollaire : les contrats de l'Application (`*Command`, `*Query`, `*Dto`, retours de handlers) n'exposent que des primitifs/BCL — la conversion (`EventId.From(...)`) vit dans les handlers, l'invariant reste garanti par le Domain.
-- **Classes à dépendances injectées** (handlers, services…) : primary constructor **+** champs `private readonly` initialisés depuis les paramètres ; les méthodes n'utilisent que les champs, jamais les paramètres capturés (garantie de non-réassignation, pas de double capture CS9124). Référence : `CreateEventCommandHandler`.
+- **Classes à dépendances injectées** (handlers, services…) : primary constructor **+** champs `private readonly` initialisés depuis les paramètres ; les méthodes n'utilisent que les champs, jamais les paramètres capturés (garantie de non-réassignation, pas de double capture CS9124). Référence : `CreateEventCommandHandler`. Le primary constructor est **obligatoire sauf impossibilité technique** — cas connu : un validator FluentValidation, dont les `RuleFor` doivent s'enregistrer dans le corps du constructeur (un primary constructor n'a pas de corps) ; on utilise alors un constructeur classique, le champ reste `private readonly` et l'esprit de la règle est respecté (réf. `CreateEventCommandValidator`). Cette exception est conforme et **ne doit pas être remontée en revue**.
 - Tests : **pyramide**. Gros volume en unitaire (domaine) + intégration (handlers + EF). E2E fin (3-5 parcours critiques max).
 - **Global usings** : toujours dans un fichier `GlobalUsings.cs` dédié à la racine du projet. Jamais via `<Using Include="...">` dans les csproj.
 - **InternalsVisibleTo** : toujours dans un fichier `InternalsVisible.cs` dédié à la racine du projet concerné, sous forme d'attribut d'assembly : `[assembly: InternalsVisibleTo("EventsManager.UnitTests")]`. Jamais via `<InternalsVisibleTo Include="...">` dans les csproj.
-- **Méthodes** : toujours en bloc `{ ... }`, jamais en expression body (`=>`), même pour les implémentations d'une ligne.
+- **Méthodes** : toujours en bloc `{ ... }`, jamais en expression body (`=>`), même pour les implémentations d'une ligne. La règle vise les **méthodes** uniquement, pas les propriétés : une propriété calculée à corps d'expression (ex. `DbSet<Event> Events => Set<Event>();`, idiome EF standard) est conforme et **ne doit pas être remontée en revue**.
 
 ## Documentation à jour (MCP Context7)
 
@@ -48,6 +48,12 @@ Pour l'activer dans un prompt : ajoute `use context7` ou demande explicitement l
 
 - Après toute modification de code : lancer `/check` et corriger jusqu'au vert **avant de s'arrêter**. **3 passes maximum**, jamais plus : la boucle exacte, les interdits anti-triche et le critère d'arrêt sont définis dans `.claude/commands/check.md`, s'y référer.
 - Pour toute tâche non triviale : proposer un **plan d'abord**, attendre validation, puis exécuter.
+
+## Sous-agents
+
+- **reviewer** : après chaque implémentation de tranche ou de feature, invoquer le sous-agent `reviewer` avant toute proposition de commit. Les points **Bloquant** sont traités avant de proposer le commit ; **À corriger** et **Suggestion** sont arbitrés en conversation. Le reviewer ne modifie jamais le code.
+- **test-writer** : quand des critères d'acceptation doivent être couverts par des tests, déléguer au sous-agent `test-writer` en nommant le fichier de critères (`docs/acceptance/<tranche>.md`). Il n'écrit que sous `tests/`. Un test rouge fidèle à son critère est un résultat à rapporter, jamais un test à affaiblir ou une raison de toucher `src/`.
+- Toute délégation à un sous-agent transmet les chemins des fichiers de référence (critères, specs) et les exigences exprimées dans la conversation sans les résumer ni les réinterpréter.
 
 ## Commits (Conventional Commits 1.0.0)
 
@@ -75,6 +81,8 @@ Tout message de commit suit la spec <https://www.conventionalcommits.org/en/v1.0
   .claude/
     commands/         # /check, /slice, ...
     agents/           # reviewer, test-writer, ...
+  docs/
+    acceptance/       # critères d'acceptation par tranche (source du test-writer)
   src/                # projets .NET uniquement
     Api/
     Application/
