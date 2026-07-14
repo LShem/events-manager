@@ -51,6 +51,8 @@ Pour l'activer dans un prompt : ajoute `use context7` ou demande explicitement l
 
 ## Commits (Conventional Commits 1.0.0)
 
+**Aucun commit sans demande explicite dans la conversation.** Fin de tranche, `/check` vert, plan validé qui liste des commits : rien de tout cela ne vaut demande. Claude peut préparer le découpage et les messages et les proposer, mais n'exécute `git commit` (ni `git add`) que sur instruction explicite.
+
 Tout message de commit suit la spec <https://www.conventionalcommits.org/en/v1.0.0/#specification> :
 
 - **Structure** : `<type>[(scope)][!]: <description>`, puis corps optionnel et footers optionnels, chaque bloc séparé du précédent par une ligne vide.
