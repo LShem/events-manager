@@ -45,6 +45,36 @@ public class EventHandlersTests(SqlServerContainerFixture fixture)
     }
 
     [Fact]
+    public async Task HandleAsync_CreateSeveralThenGet_ReturnsOnlyTheTargetedEvent()
+    {
+        var firstName = UniqueName("Carnaval");
+        var targetName = UniqueName("Fête nationale");
+        var thirdName = UniqueName("Marché de Noël");
+        var targetDate = ValidDate;
+        Guid targetId;
+
+        await using (var writeContext = _fixture.CreateContext())
+        {
+            var createHandler = CreateCreateHandler(writeContext);
+            await createHandler.HandleAsync(
+                new CreateEventCommand(firstName, new DateOnly(2026, 8, 15)),
+                TestContext.Current.CancellationToken);
+            targetId = await createHandler.HandleAsync(
+                new CreateEventCommand(targetName, targetDate),
+                TestContext.Current.CancellationToken);
+            await createHandler.HandleAsync(
+                new CreateEventCommand(thirdName, new DateOnly(2026, 12, 6)),
+                TestContext.Current.CancellationToken);
+        }
+
+        await using var readContext = _fixture.CreateContext();
+        var getHandler = new GetEventQueryHandler(new EventRepository(readContext));
+        var dto = await getHandler.HandleAsync(new GetEventQuery(targetId), TestContext.Current.CancellationToken);
+
+        dto.Should().Be(new EventDto(targetId, targetName, targetDate));
+    }
+
+    [Fact]
     public async Task GetHandleAsync_WithUnknownId_ReturnsNull()
     {
         await using var context = _fixture.CreateContext();

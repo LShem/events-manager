@@ -35,6 +35,27 @@ public class EventRepositoryTests(SqlServerContainerFixture fixture)
     }
 
     [Fact]
+    public async Task GetByIdAsync_WithSeveralPersistedEvents_ReturnsOnlyTheMatchingOne()
+    {
+        // Trois évènements, même année civile (2026) autorisée car noms distincts.
+        var first = Event.Create(UniqueName("Carnaval"), new DateOnly(2026, 8, 15), Today);
+        var target = Event.Create(UniqueName("Fête nationale"), ValidDate, Today);
+        var third = Event.Create(UniqueName("Marché de Noël"), new DateOnly(2026, 12, 6), Today);
+        await AddAsync(first);
+        await AddAsync(target);
+        await AddAsync(third);
+
+        await using var context = _fixture.CreateContext();
+        var repository = new EventRepository(context);
+        var reloaded = await repository.GetByIdAsync(target.Id, TestContext.Current.CancellationToken);
+
+        reloaded.Should().NotBeNull();
+        reloaded!.Id.Should().Be(target.Id);
+        reloaded.Name.Should().Be(target.Name);
+        reloaded.Date.Should().Be(target.Date);
+    }
+
+    [Fact]
     public async Task GetByIdAsync_WithUnknownId_ReturnsNull()
     {
         await using var context = _fixture.CreateContext();

@@ -28,6 +28,21 @@ public class GetEventQueryHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_WithSeveralEvents_ReturnsOnlyTheTargetedOne()
+    {
+        var first = Event.Create("Carnaval", new DateOnly(2026, 8, 15), Today);
+        var second = Event.Create("Fête nationale", ValidDate, Today);
+        var third = Event.Create("Marché de Noël", new DateOnly(2026, 12, 6), Today);
+        _repository.Events.Add(first);
+        _repository.Events.Add(second);
+        _repository.Events.Add(third);
+
+        var dto = await _handler.HandleAsync(new GetEventQuery(second.Id.Value), TestContext.Current.CancellationToken);
+
+        dto.Should().Be(new EventDto(second.Id.Value, "Fête nationale", ValidDate));
+    }
+
+    [Fact]
     public async Task HandleAsync_WithUnknownId_ReturnsNull()
     {
         _repository.Events.Add(Event.Create("Fête nationale", ValidDate, Today));
