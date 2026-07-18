@@ -1,5 +1,7 @@
 using EventsManager.Application.Events;
+using EventsManager.Application.Orders;
 using EventsManager.Infrastructure.Events;
+using EventsManager.Infrastructure.Orders;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EventsManager.Infrastructure;
@@ -14,6 +16,7 @@ public static class DependencyInjection
     {
         services.AddDbContext<EventsManagerDbContext>(options => options.UseEventsManagerSqlServer(connectionString));
         services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
 
         return services;
     }

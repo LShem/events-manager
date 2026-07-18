@@ -23,4 +23,9 @@ public sealed class EventRepository(EventsManagerDbContext context) : IEventRepo
     {
         return await _context.Events.SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
+
+    public async Task<bool> ExistsAsync(EventId id, CancellationToken cancellationToken)
+    {
+        return await _context.Events.AnyAsync(e => e.Id == id, cancellationToken);
+    }
 }

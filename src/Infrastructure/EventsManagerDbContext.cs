@@ -1,4 +1,5 @@
 using EventsManager.Domain.Events;
+using EventsManager.Domain.Orders;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventsManager.Infrastructure;
@@ -11,6 +12,8 @@ namespace EventsManager.Infrastructure;
 public sealed class EventsManagerDbContext(DbContextOptions<EventsManagerDbContext> options) : DbContext(options)
 {
     public DbSet<Event> Events => Set<Event>();
+
+    public DbSet<Order> Orders => Set<Order>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

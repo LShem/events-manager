@@ -20,4 +20,9 @@ internal sealed class FakeEventRepository : IEventRepository
     {
         return Task.FromResult(Events.Find(e => e.Id == id));
     }
+
+    public Task<bool> ExistsAsync(EventId id, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(Events.Exists(e => e.Id == id));
+    }
 }
