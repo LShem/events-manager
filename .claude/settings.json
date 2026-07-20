@@ -7,16 +7,24 @@
       "Bash(dotnet *)",
       "Bash(git add *)",
       "Bash(git restore --staged *)",
+      "Bash(ng *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
       "Edit(/src/**)",
       "Edit(/tests/**)",
+      "Edit(/web/**)",
+      "mcp__angular-cli",
       "mcp__context7",
       "PowerShell(dotnet *)",
       "PowerShell(git add *)",
       "PowerShell(git restore --staged *)",
+      "PowerShell(ng *)",
+      "PowerShell(npm *)",
+      "PowerShell(npx *)",
       "Skill(check)",
       "Skill(check:*)",
       "WebSearch"
     ]
   },
-  "enabledMcpjsonServers": ["context7"]
+  "enabledMcpjsonServers": ["context7", "angular-cli"]
 }
