@@ -51,7 +51,7 @@ Pour l'activer dans un prompt : ajoute `use context7` ou demande explicitement l
 
 ## Sous-agents
 
-- **reviewer** : après chaque implémentation de tranche ou de feature, invoquer le sous-agent `reviewer` avant toute proposition de commit. Les points **Bloquant** sont traités avant de proposer le commit ; **À corriger** et **Suggestion** sont arbitrés en conversation. Le reviewer ne modifie jamais le code.
+- **reviewer** : après chaque implémentation de tranche ou de feature, invoquer le sous-agent `reviewer` avant toute proposition de commit, puis **restituer son verdict en conversation, intégralement et immédiatement** : verdict global et décompte par catégorie (Bloquant / À corriger / Suggestion), y compris quand tout est à zéro. **Une revue non restituée compte comme non faite.** Les points **Bloquant** sont traités avant de proposer le commit ; **À corriger** et **Suggestion** sont arbitrés en conversation. Le reviewer ne modifie jamais le code.
 - **test-writer** : quand des critères d'acceptation doivent être couverts par des tests, déléguer au sous-agent `test-writer` en nommant le fichier de critères (`docs/acceptance/<tranche>.md`). Il n'écrit que sous `tests/`. Un test rouge fidèle à son critère est un résultat à rapporter, jamais un test à affaiblir ou une raison de toucher `src/`.
 - Toute délégation à un sous-agent transmet les chemins des fichiers de référence (critères, specs) et les exigences exprimées dans la conversation sans les résumer ni les réinterpréter.
 
