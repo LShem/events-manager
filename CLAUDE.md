@@ -76,7 +76,7 @@ Tout message de commit suit la spec <https://www.conventionalcommits.org/en/v1.0
 /
   CLAUDE.md
   global.json         # pin du SDK .NET 10
-  .mcp.json           # serveurs MCP de scope projet (Context7)
+  .mcp.json           # serveurs MCP de scope projet (Context7, angular-cli)
   events-manager.slnx # solution à la racine
   .claude/
     commands/         # /check, /slice, ...
