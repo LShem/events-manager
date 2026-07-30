@@ -81,6 +81,7 @@ Tout message de commit suit la spec <https://www.conventionalcommits.org/en/v1.0
   .claude/
     commands/         # /check, /slice, ...
     agents/           # reviewer, test-writer, ...
+    launch.json       # serveur de dev front (prévisualisation), cible `web`
   docs/
     acceptance/       # critères d'acceptation par tranche (source du test-writer)
   src/                # projets .NET uniquement
