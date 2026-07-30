@@ -1,17 +1,37 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// Theming de l'application.
+//
+// Deux sources, deux responsabilites qui ne se recouvrent pas :
+//
+// - `mat.theme()` couvre tout ce que Material 3 fournit : couleurs de role (--mat-sys-primary,
+//   surface, error, outline...), echelle typographique complete, rayons de bordure, elevations.
+//   Ces tokens ne sont jamais redefinis ici.
+// - `styles/tokens` (genere depuis web/tokens/) comble ce que Material n'a pas : les espacements
+//   et les couleurs semantiques succes / avertissement, en --app-*.
+//
+// Documentation : https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+// Palette M3 derivee de #B0413E. Fichier genere par
+// `ng generate @angular/material:theme-color` : ne jamais le modifier a la main, la
+// reproductibilite du schematic en depend.
+@use './styles/theme-colors';
+// Custom properties --app-*. Fichier genere par `npm run tokens`.
+@use './styles/tokens';
 
 html {
   height: 100%;
+  // Une seule couleur fixee, le primary de la palette generee. M3 derive secondary, neutral,
+  // neutral-variant et error depuis cette palette, et $tertiary-palette est la teinte tertiaire
+  // que le schematic a derivee du meme #B0413E : la passer evite que mat.theme() ne retombe sur
+  // `tertiary := primary`.
+  //
+  // Pas de `theme-type` : le defaut `color-scheme` est ce qui fait emettre a Material chaque
+  // --mat-sys-* sous forme light-dark(clair, sombre). C'est la convention que reprennent les
+  // --app-color-* du fichier genere.
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: theme-colors.$primary-palette,
+        tertiary: theme-colors.$tertiary-palette,
       ),
       typography: Roboto,
       density: 0,
@@ -20,10 +40,9 @@ html {
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
+  // L'application suit le reglage systeme. C'est ce qui rend effectifs les light-dark() emis par
+  // Material et par les tokens --app-* : un seul reglage fait basculer les deux ensemble.
+  color-scheme: light dark;
 
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these
@@ -36,4 +55,3 @@ body {
   margin: 0;
   height: 100%;
 }
-/* You can add global styles to this file, and also import other style files */
