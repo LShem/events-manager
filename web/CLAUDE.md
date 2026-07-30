@@ -24,9 +24,40 @@
 
 ## Outillage
 
-- Angular Material comme design system, thème prebuilt pour l'instant, composants layout en place. Theming et design tokens : semaine 9 (Style Dictionary, `web/tokens/`), ne pas anticiper.
+- Angular Material comme design system, thème M3 dérivé d'une couleur source (voir « Design tokens et theming »).
 - Serveur MCP Angular (`angular-cli`) disponible : le consulter pour le contexte workspace et les bonnes pratiques avant de générer.
 - TypeScript strict tel que scaffoldé : ne jamais l'affaiblir, aucun `any` non justifié.
+- Polices Roboto et Material Icons chargées depuis les CDN Google (`index.html`). Le self-hosting fait l'objet d'une unité dédiée : ne pas l'introduire au passage.
+
+## Design tokens et theming
+
+Deux sources de vérité qui ne se recouvrent pas. **Ne jamais redéfinir en `--app-*` un token que Material fournit déjà** : un doublon, c'est deux vérités qui divergent au premier changement.
+
+- **Material 3** couvre les couleurs de rôle (`--mat-sys-primary`, `surface`, `error`, `outline`...), l'échelle typographique complète, les rayons (`--mat-sys-corner-*`) et les élévations. Les tokens typographiques sont des **shorthands `font` complets** (graisse, taille, interligne, famille) : ne jamais les surcharger avec une simple taille.
+- **Les `--app-*`** comblent ce que Material n'a pas : les espacements (`--app-spacing-xs` → `xxl`) et les couleurs sémantiques succès / avertissement (`--app-color-success`, `--app-color-on-success`, `--app-color-warning`, `--app-color-on-warning`).
+
+Chaîne de génération :
+
+```
+Figma  ──►  tokens/app.tokens.json   ──┐
+            (export DTCG, mode clair)   ├─►  scripts/build-tokens.mjs  ──►  src/styles/_tokens.scss
+            tokens/modes/dark.tokens.json ┘        (Style Dictionary)          (--app-*, light-dark())
+```
+
+- `tokens/app.tokens.json` est la **source, produite par Figma : ne jamais la modifier**. Une valeur fausse se corrige en amont dans Figma puis se réexporte. La signaler, pas la corriger.
+- `tokens/modes/dark.tokens.json` porte les valeurs sombres, saisies à la main (le plan Figma gratuit n'a pas les modes de variables). Mêmes chemins de clés que la source, valeurs littérales, aucun token qui n'existe pas dans la source — le script échoue s'il en trouve un.
+- Export Figma → code **semi-manuel et assumé**. Sync automatique différée : à évaluer au-delà de ~15 composants, l'API REST Variables de Figma étant réservée au plan Enterprise.
+
+Fichiers générés — **ne jamais les éditer, les ouvrir pour y toucher signale un pipeline cassé** :
+
+- `src/styles/_tokens.scss` — Style Dictionary, via `npm run tokens`.
+- `src/styles/_theme-colors.scss` — palette M3 dérivée de `#B0413E` par `ng generate @angular/material:theme-color --primary-color='#B0413E' --directory=src/styles/ --interactive=false`. Régénéré à la main uniquement, pas au build : la reproductibilité du schematic dépend de sa non-modification. Seul `primary` est fixé, M3 dérive le reste.
+
+Les deux sont **versionnés**. Corollaire, règle de non-dérive : `npm run tokens` suivi de `git diff --exit-code src/styles/_tokens.scss` doit rendre un arbre propre. Un diff signifie que le généré commité est périmé (typiquement après un bump de `style-dictionary`) : le recommiter, jamais l'éditer. Ce contrôle deviendra un contrôle de CI.
+
+Mode sombre : `mat.theme()` tourne avec son `theme-type` par défaut (`color-scheme`), donc Material émet déjà chaque `--mat-sys-*` en `light-dark(clair, sombre)`. Les `--app-color-*` reprennent la même convention, et `body { color-scheme: light dark; }` fait basculer les deux ensemble sur le réglage système. Ne pas introduire de sélecteur `.dark` ni de `@media (prefers-color-scheme)` en parallèle.
+
+Aucune étape manuelle : les hooks `prestart` / `prebuild` / `prewatch` / `pretest` de `package.json` appellent `npm run tokens`. Un clone frais fait `npm ci` puis n'importe lequel de `start`, `build`, `watch`, `test`.
 
 ## Conventions
 
