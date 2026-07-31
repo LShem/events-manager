@@ -65,12 +65,25 @@ script, jamais après.
 1. **Build** : `pnpm -C web run build` (configuration production par défaut). Vert = exit 0 **et
    aucun warning** dans la sortie (TypeScript, budgets, dépréciations). Un warning est un rouge :
    corrige la cause réelle, ne le masque jamais par configuration.
-2. **Tests** : `pnpm -C web test --watch=false` (Vitest du scaffold, exécution unique). Le
-   `--watch=false` est **obligatoire** : `@angular/build` met `watch` à `true` en terminal
-   interactif, l'omettre suspend la boucle. pnpm transmet les arguments au script sans `--`
-   séparateur. Si un test échoue, corrige la cause réelle : dans l'immense
-   majorité des cas le code de production, le test seulement s'il est réellement erroné
-   (à signaler explicitement).
+2. **Tests** : `pnpm -C web test --watch=false` (Vitest du scaffold, exécution unique).
+   Deux points de forme, tous deux vérifiés, dont dépend la validité de l'étape :
+
+   - Le `--watch=false` est **obligatoire** : `@angular/build` met `watch` à `true` en terminal
+     interactif, l'omettre suspend la boucle.
+   - **N'écris jamais le `--` séparateur** hérité de npm. `pnpm test -- --watch=false` ne se
+     contente pas d'être superflu, il **échoue** : pnpm colle les arguments à la fin du script,
+     `ng` reçoit un `--` nu et rejette la commande (`Option '--' has been specified multiple
+     times`, puis `Schema validation failed`). Sous pnpm, tout ce qui suit le nom du script part
+     déjà au script.
+
+   Si un test échoue, corrige la cause réelle : dans l'immense majorité des cas le code de
+   production, le test seulement s'il est réellement erroné (à signaler explicitement).
+
+   **Ne restreins jamais l'exécution** (`--filter`, `--include`) pour obtenir le vert de la
+   boucle : `--filter` matche les noms de tests et **sort en code 0 quand il ne matche rien**
+   (« N skipped », exit 0). Un sous-ensemble filtré, ou un filtre erroné, produit un vert qui
+   n'a rien exécuté. La boucle exige la suite complète ; lis le décompte de tests, jamais le
+   seul code de sortie. Ces drapeaux servent à investiguer, pas à conclure.
 
 Pas de lint ni de format côté web avant la semaine 13 : rien d'autre à lancer.
 
@@ -86,7 +99,9 @@ Aucune exception, même à la 3e passe, même si c'est la seule façon apparente
 - **Ne jamais modifier une donnée ou une fixture de test pour la faire coller à un résultat buggé** : si un test échoue, la cause à corriger est le code de production, pas la valeur attendue (`[InlineData]`, propriété d'un objet de fixture, valeur de retour d'un mock) qui a été ajustée pour que le test passe avec le comportement actuel.
 - **Ne jamais toucher aux tests d'architecture** (`ArchitectureTests.cs`, `ProjectReferenceTests.cs`) pour les rendre plus permissifs. Ce sont les garde-fous des couches Clean Architecture, ils ne se négocient pas dans une boucle de vérification.
 - **Côté web, mêmes principes** : ne jamais supprimer ou désactiver une spec (`.skip`, `.only`,
-  `xit`, `xdescribe`, suppression de fichier) ; ne jamais affaiblir `tsconfig*.json` (strict et
+  `xit`, `xdescribe`, suppression de fichier) — ni son équivalent en ligne de commande, `--filter`
+  ou `--include`, qui restreint l'exécution sans laisser de trace dans le code et rend un exit 0
+  même sans aucun test exécuté ; ne jamais affaiblir `tsconfig*.json` (strict et
   options associées) ni faire taire le compilateur (`any` de complaisance, `@ts-ignore`,
   `@ts-expect-error`) ; ne jamais augmenter un budget ni masquer un warning par configuration
   dans `angular.json` pour obtenir le vert ; ne jamais ajuster une valeur attendue d'un test
