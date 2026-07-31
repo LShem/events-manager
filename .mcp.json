@@ -2,11 +2,11 @@
   "mcpServers": {
     "context7": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@upstash/context7-mcp@latest"]
+      "args": ["/c", "pnpm", "dlx", "@upstash/context7-mcp@latest"]
     },
     "angular-cli": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@angular/cli@latest", "mcp"]
+      "args": ["/c", "pnpm", "dlx", "@angular/cli@latest", "mcp"]
     }
   }
 }

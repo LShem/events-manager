@@ -14,7 +14,7 @@
 // `ng generate @angular/material:theme-color` : ne jamais le modifier a la main, la
 // reproductibilite du schematic en depend.
 @use './styles/theme-colors';
-// Custom properties --app-*. Fichier genere par `npm run tokens`.
+// Custom properties --app-*. Fichier genere par `pnpm tokens`.
 @use './styles/tokens';
 
 html {

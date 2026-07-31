@@ -1,6 +1,6 @@
 ---
 description: Boucle de vérification par zones (dotnet, web) — build, tests, format jusqu'au vert (3 passes max, garde-fous anti-triche)
-allowed-tools: Bash(dotnet build:*), Bash(dotnet test:*), Bash(dotnet format:*), Bash(npm ci:*), Bash(npm run build:*), Bash(npm test:*), Bash(git status:*), Bash(git diff:*), Read, Grep, Edit(src/**), Edit(tests/**), Edit(web/**)
+allowed-tools: Bash(dotnet build:*), Bash(dotnet test:*), Bash(dotnet format:*), Bash(pnpm -C web install:*), Bash(pnpm -C web run build:*), Bash(pnpm -C web test:*), Bash(git status:*), Bash(git diff:*), Read, Grep, Edit(src/**), Edit(tests/**), Edit(web/**)
 ---
 
 # /check
@@ -55,15 +55,20 @@ Une passe = toutes les étapes de toutes les zones actives, dans l'ordre : boucl
 
 ### Boucle web
 
-Toutes les commandes s'exécutent dans `web/`.
+Les commandes ciblent `web/` via le drapeau `-C` de pnpm, et se lancent donc **depuis la racine
+du repo** — pas de `cd` préalable. `-C` est un drapeau global : il se place avant le nom du
+script, jamais après.
 
-0. **Pré-requis** : si `web/node_modules` est absent, `npm ci`. Un échec ici est un problème
-   d'environnement : critère d'arrêt immédiat, pas 3 passes.
-1. **Build** : `npm run build` (configuration production par défaut). Vert = exit 0 **et aucun
-   warning** dans la sortie (TypeScript, budgets, dépréciations). Un warning est un rouge :
+0. **Pré-requis** : si `web/node_modules` est absent, `pnpm -C web install --frozen-lockfile`
+   (l'équivalent pnpm de `npm ci` : échoue si `pnpm-lock.yaml` ne colle pas au `package.json`).
+   Un échec ici est un problème d'environnement : critère d'arrêt immédiat, pas 3 passes.
+1. **Build** : `pnpm -C web run build` (configuration production par défaut). Vert = exit 0 **et
+   aucun warning** dans la sortie (TypeScript, budgets, dépréciations). Un warning est un rouge :
    corrige la cause réelle, ne le masque jamais par configuration.
-2. **Tests** : `npm test -- --watch=false` (Vitest du scaffold, exécution unique — jamais de
-   mode watch dans la boucle). Si un test échoue, corrige la cause réelle : dans l'immense
+2. **Tests** : `pnpm -C web test --watch=false` (Vitest du scaffold, exécution unique). Le
+   `--watch=false` est **obligatoire** : `@angular/build` met `watch` à `true` en terminal
+   interactif, l'omettre suspend la boucle. pnpm transmet les arguments au script sans `--`
+   séparateur. Si un test échoue, corrige la cause réelle : dans l'immense
    majorité des cas le code de production, le test seulement s'il est réellement erroné
    (à signaler explicitement).
 
@@ -99,7 +104,7 @@ Arrête la boucle. N'écris aucun code de plus. Affiche ce rapport :
 
 Étape qui bloque : [zone dotnet ou web : build / tests / format]
 Dernière erreur exacte :
-[extrait brut de la sortie dotnet/npm, pas une paraphrase]
+[extrait brut de la sortie dotnet/pnpm, pas une paraphrase]
 
 Ce qui a été tenté :
 - Passe 1 : [correction appliquée, résultat]
@@ -139,6 +144,6 @@ Reste factuel et court. Pas de "tout est parfait !".
 ## Notes
 
 - Solution : `events-manager.slnx` à la racine du repo. Projets de tests : `tests/UnitTests/EventsManager.UnitTests.csproj` (unitaires) et `tests/IntegrationTests/EventsManager.IntegrationTests.csproj` (intégration, Testcontainers SQL Server → Docker actif requis).
-- Front : workspace Angular `events-manager-web` sous `web/` (runner de tests Vitest du scaffold, builder `@angular/build:unit-test`). Les commandes de la boucle web s'exécutent dans `web/`.
+- Front : workspace Angular `events-manager-web` sous `web/` (runner de tests Vitest du scaffold, builder `@angular/build:unit-test`). Les commandes de la boucle web ciblent `web/` via `pnpm -C web`, depuis la racine du repo.
 - Pas de commit à la fin de `/check`. C'est une boucle de vérification locale, pas un workflow de publication.
 - `/check` part du principe que le seul but légitime est de faire dire la vérité au code, jamais de faire taire les outils qui la disent.

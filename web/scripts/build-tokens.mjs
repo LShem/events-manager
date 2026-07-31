@@ -5,13 +5,14 @@
 // modele que les --mat-sys-* d'Angular Material, qui sont deja emis ainsi par mat.theme()
 // (theme-type: color-scheme par defaut).
 //
-// A lancer via `npm run tokens`. Les hooks prebuild / prestart / prewatch / pretest de
-// package.json l'appellent automatiquement : un clone frais n'a aucune etape manuelle a faire.
+// A lancer via `pnpm tokens`. Les scripts start / build / watch / test de package.json
+// l'enchainent explicitement (`pnpm tokens && ng ...`) : un clone frais n'a aucune etape
+// manuelle a faire.
 
 import StyleDictionary from 'style-dictionary';
 import { fileHeader } from 'style-dictionary/utils';
 
-// Chemins relatifs a web/, ou tournent les scripts npm.
+// Chemins relatifs a web/, ou tournent les scripts pnpm.
 const LIGHT_SOURCE = 'tokens/app.tokens.json';
 const DARK_SOURCE = 'tokens/modes/dark.tokens.json';
 const FORMAT_NAME = 'css/app-tokens';
@@ -120,7 +121,7 @@ await new StyleDictionary({
               'Do not edit directly, this file was auto-generated.',
               `Clair  : ${LIGHT_SOURCE} (export Figma, format DTCG)`,
               `Sombre : ${DARK_SOURCE}`,
-              'Regenerer : npm run tokens',
+              'Regenerer : pnpm tokens',
             ],
           },
         },

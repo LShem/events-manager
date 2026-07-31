@@ -2,12 +2,21 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.7.
 
+## Package manager
+
+This project uses **pnpm**. Install dependencies with `pnpm install` (or
+`pnpm install --frozen-lockfile` for a reproducible install). Do not use `npm` or `npx` here.
+
+Always go through the `package.json` scripts rather than calling `ng` directly: `start`,
+`build`, `watch` and `test` each regenerate the design tokens first (`pnpm tokens && ng ...`).
+Running `ng build` on its own silently builds against a stale `src/styles/_tokens.scss`.
+
 ## Development server
 
 To start a local development server, run:
 
 ```bash
-ng serve
+pnpm start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
@@ -17,13 +26,13 @@ Once the server is running, open your browser and navigate to `http://localhost:
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
 
 ```bash
-ng generate component component-name
+pnpm ng generate component component-name
 ```
 
 For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
 
 ```bash
-ng generate --help
+pnpm ng generate --help
 ```
 
 ## Building
@@ -31,7 +40,7 @@ ng generate --help
 To build the project run:
 
 ```bash
-ng build
+pnpm run build
 ```
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
@@ -41,7 +50,7 @@ This will compile your project and store the build artifacts in the `dist/` dire
 To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
 
 ```bash
-ng test
+pnpm test --watch=false
 ```
 
 ## Running end-to-end tests

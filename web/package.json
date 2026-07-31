@@ -4,17 +4,21 @@
   "scripts": {
     "ng": "ng",
     "tokens": "node scripts/build-tokens.mjs",
-    "prestart": "npm run tokens",
-    "start": "ng serve",
-    "prebuild": "npm run tokens",
-    "build": "ng build",
-    "prewatch": "npm run tokens",
-    "watch": "ng build --watch --configuration development",
-    "pretest": "npm run tokens",
-    "test": "ng test"
+    "start": "pnpm tokens && ng serve",
+    "build": "pnpm tokens && ng build",
+    "watch": "pnpm tokens && ng build --watch --configuration development",
+    "test": "pnpm tokens && ng test"
   },
   "private": true,
-  "packageManager": "npm@11.13.0",
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild",
+      "lmdb",
+      "msgpackr-extract"
+    ]
+  },
   "dependencies": {
     "@angular/cdk": "^22.0.5",
     "@angular/common": "^22.0.0",

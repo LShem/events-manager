@@ -24,6 +24,8 @@
 
 ## Outillage
 
+- **Gestionnaire de paquets : pnpm**, déclaré par le champ `packageManager` de `package.json` (lu par Corepack et par pnpm lui-même) et par `cli.packageManager` d'`angular.json` (ce qu'invoquent `ng add` / `ng update`). Ce sont des déclarations, pas des verrous : rien ne fait échouer un `npm install` lancé par erreur — d'où la règle ci-dessous. `pnpm-lock.yaml` est versionné ; il n'y a plus de `package-lock.json`. Ne jamais lancer `npm` ni `npx` ici — `pnpm install`, `pnpm <script>`, et `pnpm dlx` à la place de `npx`. Installation reproductible : `pnpm install --frozen-lockfile`.
+- pnpm 10 **bloque par défaut les scripts d'install des dépendances** (surface d'attaque supply-chain). Les quatre paquets concernés ici (`@parcel/watcher`, `esbuild`, `lmdb`, `msgpackr-extract`) sont des accélérateurs natifs optionnels : build et tests sont verts sans eux, ils sont donc déclarés dans `pnpm.ignoredBuiltDependencies`. Conséquence utile : l'encadré d'avertissement à l'install reste vide, donc un nouveau paquet natif s'y verra immédiatement. Si un jour l'un d'eux devient nécessaire, le passer dans `pnpm.onlyBuiltDependencies` — jamais un blanc-seing global.
 - Angular Material comme design system, thème M3 dérivé d'une couleur source (voir « Design tokens et theming »).
 - Serveur MCP Angular (`angular-cli`) disponible : le consulter pour le contexte workspace et les bonnes pratiques avant de générer.
 - TypeScript strict tel que scaffoldé : ne jamais l'affaiblir, aucun `any` non justifié.
@@ -50,14 +52,16 @@ Figma  ──►  tokens/app.tokens.json   ──┐
 
 Fichiers générés — **ne jamais les éditer, les ouvrir pour y toucher signale un pipeline cassé** :
 
-- `src/styles/_tokens.scss` — Style Dictionary, via `npm run tokens`.
+- `src/styles/_tokens.scss` — Style Dictionary, via `pnpm tokens`.
 - `src/styles/_theme-colors.scss` — palette M3 dérivée de `#B0413E` par `ng generate @angular/material:theme-color --primary-color='#B0413E' --directory=src/styles/ --interactive=false`. Régénéré à la main uniquement, pas au build : la reproductibilité du schematic dépend de sa non-modification. Seul `primary` est fixé, M3 dérive le reste.
 
-Les deux sont **versionnés**. Corollaire, règle de non-dérive : `npm run tokens` suivi de `git diff --exit-code src/styles/_tokens.scss` doit rendre un arbre propre. Un diff signifie que le généré commité est périmé (typiquement après un bump de `style-dictionary`) : le recommiter, jamais l'éditer. Ce contrôle deviendra un contrôle de CI.
+Les deux sont **versionnés**. Corollaire, règle de non-dérive : `pnpm tokens` suivi de `git diff --exit-code src/styles/_tokens.scss` doit rendre un arbre propre. Un diff signifie que le généré commité est périmé (typiquement après un bump de `style-dictionary`) : le recommiter, jamais l'éditer. Ce contrôle deviendra un contrôle de CI.
 
 Mode sombre : `mat.theme()` tourne avec son `theme-type` par défaut (`color-scheme`), donc Material émet déjà chaque `--mat-sys-*` en `light-dark(clair, sombre)`. Les `--app-color-*` reprennent la même convention, et `body { color-scheme: light dark; }` fait basculer les deux ensemble sur le réglage système. Ne pas introduire de sélecteur `.dark` ni de `@media (prefers-color-scheme)` en parallèle.
 
-Aucune étape manuelle : les hooks `prestart` / `prebuild` / `prewatch` / `pretest` de `package.json` appellent `npm run tokens`. Un clone frais fait `npm ci` puis n'importe lequel de `start`, `build`, `watch`, `test`.
+Aucune étape manuelle : les scripts `start` / `build` / `watch` / `test` de `package.json` enchaînent explicitement `pnpm tokens && ng ...`. Un clone frais fait `pnpm install` puis n'importe lequel des quatre.
+
+**Ne pas revenir à des hooks `pre*`** (`prestart`, `prebuild`...) : pnpm ne les exécute pas par défaut (`enablePrePostScripts` vaut `false`). Comme `_tokens.scss` est versionné, le build resterait vert avec des tokens périmés — la panne serait silencieuse. L'enchaînement explicite ne dépend d'aucun réglage.
 
 ## Conventions
 
@@ -67,4 +71,4 @@ Aucune étape manuelle : les hooks `prestart` / `prebuild` / `prewatch` / `prete
 
 ## Vérification
 
-- La boucle `/check` du repo couvre web/ : elle lance `npm run build` puis `npm test` quand web/ est touché. La lancer en fin de modification comme partout ailleurs, zéro erreur et zéro warning avant de rendre la main. Pas de lint configuré avant la semaine 13.
+- La boucle `/check` du repo couvre web/ : elle lance `pnpm -C web run build` puis `pnpm -C web test --watch=false` quand web/ est touché (commandes faisant foi dans `.claude/commands/check.md` ; le `--watch=false` est obligatoire, `@angular/build` met `watch` à `true` en terminal interactif). La lancer en fin de modification comme partout ailleurs, zéro erreur et zéro warning avant de rendre la main. Pas de lint configuré avant la semaine 13.
